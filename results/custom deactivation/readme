@@ -1,3 +1,4 @@
 ## This folder contains 
-# 1. AUC and Roc plots obtained by running the modified kitsune model i.e custom deactivation of AEs on various IOT attacks.
+# 1. AUC and Roc plots were obtained by running the modified kitsune model i.e. custom deactivation of AEs on various IOT attacks.
 # 2. Time comparison of the models. 
+# 3. Confusion Matrices for two attacks.
