@@ -5,4 +5,7 @@ However, one disadvantage of neural networks is the large number of resources re
 
 This project lays the groundwork for potentially improving anomaly detection accuracy by exploring the feasibility of embedding a dynamic ensemble selection classifier layer within the neural networks. While a fully dynamic layer is still under development, we have successfully implemented a static version that demonstrates the potential of this approach. Our findings provide valuable insights for future research and development efforts focused on realizing the dynamic capability.
 
+Dataset used for the project :
+Kitsune Network Attack Dataset. (2019). UCI Machine Learning Repository. https://doi.org/10.24432/C5D90Q.
+
 
