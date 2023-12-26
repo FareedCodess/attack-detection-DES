@@ -27,17 +27,16 @@ benignDf,maliciousDf=getDistinctDatasets(packetsDf,labelDf['labels'])
 B_train, B_test, L_B_train, L_B_test = train_test_split(benignDf[list(range(1,116))].to_numpy(),benignDf['labels'].to_numpy(), test_size=0.8 ,shuffle= False,random_state=42)
 
 # training kitsune on beniegn  dataset
-# train(B_train)
+train(B_train)
 packets,features=B_train.shape
 
 # KitNET params:
-maxAE = 10 #maximum size for any autoencoder in the ensemble layer
-FMgrace = 5000 #the number of instances taken to learn the feature mapping (the ensemble's architecture)
-ADgrace = 50000 #the number of instances used to train the anomaly detector (ensemble itself)
+maxAE = 11          #maximum size for any autoencoder in the ensemble layer
+FMgrace = 5000      #the number of instances taken to learn the feature mapping (the ensemble's architecture)
+ADgrace = 50000     #the number of instances used to train the anomaly detector (ensemble itself)
 
 # Build Kitsune
 K = Kitsune(features,maxAE,FMgrace,ADgrace)
-
 print("Running Kitsune:")
 
 RMSEs = []
@@ -78,10 +77,8 @@ FE_mean_of_RMSE = np.mean(FE_filtered_arr)
 MeanRMSEs = []
 for i in RMSEs:
     arr = np.array(i)
-    # Remove elements greater than 10
-    filtered_arr = arr[arr <= 1]
-    # Calculate the mean of the remaining elements
-    mean_of_filtered = np.mean(filtered_arr)
+    filtered_arr = arr[arr <= 1]            # Remove elements greater than 10
+    mean_of_filtered = np.mean(filtered_arr)# Calculate the mean of the remaining elements
     MeanRMSEs.append(mean_of_filtered)
 
 indexed_rmse = list(enumerate(MeanRMSEs))
@@ -105,10 +102,12 @@ for i in range(55000):
 
 #%% 
 B_train, B_test, L_B_train, L_B_test = train_test_split(benignDf[list(range(1,116))].to_numpy(),benignDf['labels'].to_numpy(), test_size=0.8 ,shuffle= False,random_state=42)
-
 L_B_train[100] = 1
 L_B_train = L_B_train[0:55000]
+
+# Computing AUC Scores
 aucScores=roc_auc_score(L_B_train,RMSEsSelectedAE)
+
 #plotting roc curve
 fpr, tpr, thresholds = roc_curve(L_B_train,RMSEsSelectedAE)
 plt.title('Receiver Operating Characteristic')
@@ -124,13 +123,10 @@ plt.savefig('Video_Injection_A20.png')
 ## calculating score
 threshold=bestThreshold(tpr,fpr,thresholds)
 predicted=predict(RMSEsSelectedAE,threshold)
+bestT=bestThreshold(tpr,fpr,thresholds)
 
-# bestT=bestThreshold(tpr,fpr,thresholds)
-# print(log_loss(L_BM_Test1[0:50000],RMSEs))
-# print(score(RMSEs,L_BM_Test1[0:50000],bestT))
 
 np.set_printoptions(precision=2)
-
 # Plot non-normalized confusion matrix
 # plot_confusion_matrix(L_BM_Test1, predicted,classes=["benign","malicious"],title='Confusion matrix(Video Injection): Deactivating 50% Autoendcoders')
 plot_confusion_matrix(L_B_train, predicted,classes=["benign","malicious"],title='Confusion matrix(Video Injection):Selected AEs (0.5 of original ensemble)')
@@ -141,8 +137,9 @@ plot_confusion_matrix(L_B_train, predicted,classes=["benign","malicious"],title=
 plt.savefig('confusionMatrix_Video_Injection_selectedAEs_order_bestPerforming(RMSE).png')
 
 
-
 #%%
+# Plot of Mean RMSEs
+
 plt.figure(figsize=(10, 6))
 plt.plot(original_indexes, sorted_values , marker='o', linestyle='-', color='b', label='RMSE')
 plt.xlabel('Index of Active Autoencoder')
@@ -151,24 +148,9 @@ plt.title('Line Plot of Mean RMSEs')
 plt.grid(True)
 plt.tight_layout()
 plt.legend()
-
 plt.savefig('line_plot_55K_VI_ZeroFeed.png')
 print("Complete.") 
 
-
-# %%
-
-for i in RMSEs:
-    arr = np.array(i)
-
-    # Remove elements greater than 10
-    filtered_arr = arr[arr <= 1]
-    print(filtered_arr.size)
-    # Calculate the mean of the remaining elements
-    mean_of_filtered = np.mean(filtered_arr)
-    MeanRMSEs.append(mean_of_filtered)
-
-# %%
     
 # MIT License
 
