@@ -37,14 +37,17 @@ class KitNET:
         self.n_trained = 0 # the number of training instances so far
         self.n_executed = 0 # the number of executed instances so far
         self.v = feature_map
+        self.ensembleLayer = []
+        self.outputLayer = None
         if self.v is None:
             print("Feature-Mapper: train-mode, Anomaly-Detector: off-mode")
+            self.FM = CC.corClust(self.n) # incremental feature cluatering for the feature mapping process
         else:
             self.__createAD__()
             print("Feature-Mapper: execute-mode, Anomaly-Detector: train-mode")
-        self.FM = CC.corClust(self.n) #incremental feature cluatering for the feature mapping process
-        self.ensembleLayer = []
-        self.outputLayer = None
+            self.FM = feature_map
+        
+        
 
     #If FM_grace_period+AM_grace_period has passed, then this function executes KitNET on x. Otherwise, this function learns from x.
     #x: a numpy array of length n
@@ -55,9 +58,9 @@ class KitNET:
                 return self.execute(x)
             else :
                 if isinstance(activeDA, list):
-                    return self.executeMultipleSelectedDAs(x,activeDA)
+                    return self.executeMultipleSelectedAEs(x,activeDA)
                 else : 
-                    return self.executeSelectedDAs(x,activeDA)
+                    return self.executeSelectedAE(x,activeDA)
 
         else:
             self.train(x)
@@ -110,7 +113,7 @@ class KitNET:
             ## OutputLayer
             return self.outputLayer.execute(S_l1)
         
-    def executeSelectedDAs(self,x,i):
+    def executeSelectedAE(self,x,i):
         if self.v is None:
             raise RuntimeError('KitNET Cannot execute x, because a feature mapping has not yet been learned or provided. Try running process(x) instead.')
         else:
@@ -119,11 +122,9 @@ class KitNET:
             S_l1 = np.zeros(len(self.ensembleLayer))
             xi = x[self.v[i]]
             S_l1[i] = self.ensembleLayer[i].execute(xi)
-            # S_l1.fill(self.ensembleLayer[i].execute(xi))  # Fill all the AEs with the same value
-            ## OutputLayer
             return self.outputLayer.execute(S_l1)
         
-    def executeMultipleSelectedDAs(self,x,listAE):
+    def executeMultipleSelectedAEs(self,x,listAE):
         if self.v is None:
             raise RuntimeError('KitNET Cannot execute x, because a feature mapping has not yet been learned or provided. Try running process(x) instead.')
         else:
@@ -146,6 +147,7 @@ class KitNET:
         # construct output layer
         params = AE.dA_params(len(self.v), n_hidden=0, lr=self.lr, corruption_level=0, gracePeriod=0, hiddenRatio=self.hr)
         self.outputLayer = AE.dA(params)
+
 
 # Copyright (c) 2017 Yisroel Mirsky
 #
